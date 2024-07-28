@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 8011
 
-CMD ["node", "index.js"]
+CMD ["node", "koa-api.js"]
