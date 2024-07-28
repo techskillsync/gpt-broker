@@ -16,6 +16,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
  * @param {string} prompt - text you want GPT to respond to
  */
 async function GenerateResponse(prompt) {
+	console.log(` - 📝 Sending ChatGPT ${prompt}`)
 	const response = await openai.chat.completions.create({
 		messages: [{ role: "system", content: prompt }],
 		model: "gpt-4o-mini",
@@ -72,6 +73,13 @@ router.get('/gpt-4o-mini-complete', async ctx => {
 app
 	.use(router.routes())
 	.use(router.allowedMethods());
+
+// Error handling for non-existent endpoints
+app.use(async (ctx) => {
+	console.log(' - 📭 user requested non-existent endpoint')
+    ctx.status = 404;
+    ctx.body = { error: 'Endpoint not found' };
+});
 
 const PORT = 8011;
 app.listen(PORT, () => {
