@@ -2,14 +2,16 @@ require('dotenv').config(); // Load environment variables
 
 const Koa = require('koa');
 const Router = require('koa-router');
-const rateLimit = require('koa-ratelimit');
-const OpenAI = require('openai')
-const { createClient } = require('@supabase/supabase-js')
+const cors = require('@koa/cors');
+const OpenAI = require('openai');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = new Koa();
 const router = new Router();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+
+app.use(cors());
 
 /*
  * Generate a response with ChatGPT
