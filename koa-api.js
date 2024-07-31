@@ -59,7 +59,7 @@ app.use(async (ctx, next) => {
 router.get('/gpt-4o-mini-complete', async ctx => {
 	const prompt = ctx.query.prompt;
 	if (!prompt) {
-		ctx.stauts = 400;
+		ctx.status = 400;
 		ctx.body = { error: "Missing required 'prompt' query parameter" };
 		return;
 	}
