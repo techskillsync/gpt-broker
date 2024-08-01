@@ -11,4 +11,5 @@ The only manual configuration is creating a .env file with the following:
 OPENAI_API_KEY=your-openai-api-key-here
 SUPABASE_URL=your-supabase-url-here
 SUPABASE_KEY=your-supabase-anon-key-here
+DAILY_LIMIT=50
 ```
