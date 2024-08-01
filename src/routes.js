@@ -1,5 +1,5 @@
 const Router = require('koa-router')
-const { GenerateResponse } = require('./utils')
+const { generateResponse } = require('./utils')
 
 const router = new Router();
 
@@ -24,7 +24,7 @@ router.get('/simple-gpt-4o-mini-complete', async ctx => {
 
 	try {
 		messages = [{ role: "system", content: prompt }]
-		const response = await GenerateResponse(messages);
+		const response = await generateResponse(messages);
 		ctx.body = response;
 	} catch (error) {
 		ctx.status = 500;
@@ -45,7 +45,7 @@ router.post('/advanced-gpt-4o-mini-complete', async ctx => {
 		return;
 	}
 	try {
-		const response = await GenerateResponse(messages);
+		const response = await generateResponse(messages);
 		ctx.body = response;
 	} catch (error) {
 		ctx.status = 500;

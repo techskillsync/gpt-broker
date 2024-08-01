@@ -5,14 +5,15 @@ const cors = require('@koa/cors');
 const bodyParser = require('koa-bodyparser');
 
 const { router } = require('./src/routes')
-const { checkSupabaseSession } = require('./src/middleware')
+const { validateUser, checkRateLimit } = require('./src/middleware')
 
 const app = new Koa();
 
 // Middleware
 app.use(cors());
 app.use(bodyParser());
-app.use(checkSupabaseSession);
+app.use(validateUser);
+app.use(checkRateLimit);
 
 // Routes
 app.use(router.routes())

@@ -5,7 +5,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
  * Generate a response with ChatGPT
  * @param {string} prompt - text you want GPT to respond to
  */
-async function GenerateResponse(messages) {
+async function generateResponse(messages) {
 
 	if (!Array.isArray(messages)) { 
 		throw new Error("'messages' must be an array"); 
@@ -30,4 +30,4 @@ async function GenerateResponse(messages) {
 	}
 }
 
-module.exports = { GenerateResponse }
+module.exports = { generateResponse }
