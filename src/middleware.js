@@ -57,6 +57,11 @@ async function checkRateLimit(ctx, next) {
 		}
 	}
 	else {
+		if (rate_limit_data.rate_limited !== false && rate_limit_data.usage >= process.env.DAILY_LIMIT) {
+			ctx.status = 429;
+			ctx.body = { error: `You have exceeded your daily limit of ${process.env.DAILY_LIMIT} requests. Please try again tomorrow.` };
+			return;
+		}
 		const { data: updatedData, error: updateError } = await supabase
 			.from('rate_limit')
 			.update({ usage: rate_limit_data.usage + 1 })
