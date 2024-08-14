@@ -34,7 +34,7 @@ router.get('/simple-gpt-4o-mini-complete', async ctx => {
 
 /*
  * Request body must contain an array of `messages` to pass to GPT
- * ie. [ { role: 'system', content: context }, ... ]
+ * ie. [ { role: 'system', content: "Write me a poem" }, ... ]
  * @returns - a response with GPT's response in the body
  */
 router.post('/advanced-gpt-4o-mini-complete', async ctx => {
