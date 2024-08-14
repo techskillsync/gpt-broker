@@ -2,6 +2,8 @@ const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 const validateUser = async (ctx, next) => {
+	console.time('Validate User');
+
 	const authHeader = ctx.headers['authorization'];
 	if (!authHeader) {
 		ctx.status = 401;
@@ -21,9 +23,12 @@ const validateUser = async (ctx, next) => {
 	// The user object is nested.. that why we do the below
 	ctx.state.user = user.user;
 	await next();
+
+	console.timeEnd('Validate User');
 };
 
 async function checkRateLimit(ctx, next) {
+	console.time('Check Rate Limit');
 
 	const user = ctx.state.user;
 
@@ -75,6 +80,8 @@ async function checkRateLimit(ctx, next) {
 	}
 
 	await next();
+
+	console.time('Check Rate Limit');
 }
 
 module.exports = { validateUser, checkRateLimit };
