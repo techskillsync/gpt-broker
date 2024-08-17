@@ -19,5 +19,5 @@ Make a .env file in the root directory with the following. Then run `node koa-ap
 OPENAI_API_KEY=your-openai-api-key-here
 SUPABASE_URL=your-supabase-url-here
 SUPABASE_KEY=your-supabase-service-key-here
-DAILY_LIMIT=50
+REDIS_URL=url-to-redis-db
 ```
