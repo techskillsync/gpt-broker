@@ -1,7 +1,8 @@
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-const validateUser = async (ctx, next) => {
+async function validateUser(ctx, next) {
+	console.time("ValidateUser");
 	const authHeader = ctx.headers['authorization'];
 	if (!authHeader) {
 		ctx.status = 401;
@@ -20,61 +21,44 @@ const validateUser = async (ctx, next) => {
 
 	// The user object is nested.. that why we do the below
 	ctx.state.user = user.user;
+	console.timeEnd("ValidateUser");
 	await next();
 };
 
-async function checkRateLimit(ctx, next) {
-
+async function CheckRateLimit(ctx, next) {
+	console.time("CheckRateLimit");
 	const user = ctx.state.user;
 
 	if (!user) { throw Error("checkRateLimit could not get the user object. Make sure previous middleware added it to ctx.state.user before calling checkRateLimit") }
 
-	const { data: rate_limit_data, error: rate_limit_fetch_error } = await supabase
-		.from('rate_limit')
-		.select('*')
-		.eq('id', user.id)
-		.single()
+	const key = `rate_limit:${user.id}`;
+	const expirationTime = 24 * 60 * 60; // 24 hrs
+	const replies = await ctx.redis.multi()
+		.incr(key)
+		.expire(key, expirationTime)
+		.get(key)
+		.exec((err, replies) => {
+			if (err) {
+				console.error(' - ‼️ redis error: ' + err);
+			} else {
+				console.log(replies)
+			}
+		});
 
-	// Throw error unless we haven't added the user yet.
-	// If we haven't added the user yet then add them.
-	if (rate_limit_fetch_error && rate_limit_fetch_error.code !== "PGRST116") {
-		ctx.status = 500;
-		ctx.body = { error: `Error fetching user usage limit` }
-		console.log(" - 🚨 error fetching user usage limit");
-		console.log(rate_limit_fetch_error)
-		return;
-	}
-	else if (rate_limit_fetch_error) {
-		const { data: insertedData, error: insertError } = await supabase
-			.from('rate_limit')
-			.insert([{ id: user.id, usage: 1, email: user.email }])
+	const id_white_list = ['87b3d3cb-8643-46e8-9e54-39c0ffe2a585'];
+	const DAILY_LIMIT = 200;
 
-		if (insertError) {
-			ctx.status = 500;
-			ctx.body = { error: `Error inserting user into rate_limit table` }
-			console.log(" - 🚨 error inserting user into rate_limit table");
-			return;
-		}
-	}
-	else {
-		if (rate_limit_data.rate_limited !== false && rate_limit_data.usage >= process.env.DAILY_LIMIT) {
+	if (!id_white_list.includes(user.id)) {
+		const currentRequests = parseInt(replies[2])
+		if (currentRequests > DAILY_LIMIT) {
 			ctx.status = 429;
-			ctx.body = { error: `You have exceeded your daily limit of ${process.env.DAILY_LIMIT} requests. Please try again tomorrow.` };
-			return;
-		}
-		const { data: updatedData, error: updateError } = await supabase
-			.from('rate_limit')
-			.update({ usage: rate_limit_data.usage + 1 })
-			.eq('id', user.id);
-		if (updateError) {
-			ctx.status = 500;
-			ctx.body = { error: `Error updating user usage limit` };
-			console.log(" - 🚨 error updating user usage limit");
+			ctx.body = { error: 'GPT Rate limit exceeded.', message: null }
 			return;
 		}
 	}
 
+	console.timeEnd("CheckRateLimit");
 	await next();
 }
 
-module.exports = { validateUser, checkRateLimit };
+module.exports = { validateUser, CheckRateLimit };
