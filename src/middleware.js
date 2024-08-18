@@ -44,11 +44,11 @@ async function CheckRateLimit(ctx, next) {
 				console.log(replies)
 			}
 		});
+	
+	const ID_WHITE_LIST = process.env.ID_WHITE_LIST;
+	const DAILY_LIMIT = process.env.DAILY_LIMIT;
 
-	const id_white_list = ['87b3d3cb-8643-46e8-9e54-39c0ffe2a585'];
-	const DAILY_LIMIT = 200;
-
-	if (!id_white_list.includes(user.id)) {
+	if (!ID_WHITE_LIST.includes(user.id)) {
 		const currentRequests = parseInt(replies[2])
 		if (currentRequests > DAILY_LIMIT) {
 			ctx.status = 429;

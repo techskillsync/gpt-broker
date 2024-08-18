@@ -16,8 +16,10 @@ More complicated but allows full control over the prompts passed to ChatGPT. Req
 ## Setup:
 Make a .env file in the root directory with the following. Then run `node koa-api.js` or `docker compose up` to run **gpt_broker**.
 ```
-OPENAI_API_KEY=your-openai-api-key-here
-SUPABASE_URL=your-supabase-url-here
-SUPABASE_KEY=your-supabase-service-key-here
-REDIS_URL=url-to-redis-db
+OPENAI_API_KEY=openai-key
+SUPABASE_SERVICE_KEY=supabase-service-key
+SUPABASE_URL=https://supabase-url
+REDIS_URL=redis-connection-string
+ID_WHITELIST=list-of-user-id's
+DAILY_LIMIT=limit-num
 ```
