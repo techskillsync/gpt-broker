@@ -20,6 +20,6 @@ OPENAI_API_KEY=openai-key
 SUPABASE_SERVICE_KEY=supabase-service-key
 SUPABASE_URL=https://supabase-url
 REDIS_URL=redis-connection-string
-ID_WHITELIST=list-of-user-id's
+ID_WHITE_LIST=list-of-user-id's
 DAILY_LIMIT=limit-num
 ```

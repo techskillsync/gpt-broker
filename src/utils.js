@@ -6,7 +6,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
  * @param {string} prompt - text you want GPT to respond to
  */
 async function generateResponse(messages) {
-	console.time("GPT");
+
 	if (!Array.isArray(messages)) { 
 		throw new Error("'messages' must be an array"); 
 	}
@@ -24,7 +24,6 @@ async function generateResponse(messages) {
 			messages: messages,
 			model: "gpt-4o-mini",
 		});
-		console.timeEnd("GPT");
 		return response.choices[0].message.content.trim();
 	} catch {
 		throw new Error(JSON.stringify(response));
