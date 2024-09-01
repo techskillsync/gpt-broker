@@ -14,7 +14,7 @@ More complicated but allows full control over the prompts passed to ChatGPT. Req
   - **messages** passed in the message body as JSON. Must be a valid array of messages that ChatGPT accepts. Ie, in the format: `[ { role: 'system', content: "Write me a poem" }, ... ]` [Read more here](https://platform.openai.com/docs/guides/chat-completions/getting-started?lang=node.js).
 
 ## Setup:
-Make a .env file in the root directory with the following. Then run `node koa-api.js` or `docker compose up` to run **gpt_broker**.
+Make a .env file in the root directory with the following. Then run `docker compose up` to start **gpt_broker**.
 ```
 OPENAI_API_KEY=openai-key
 SUPABASE_SERVICE_KEY=supabase-service-key
