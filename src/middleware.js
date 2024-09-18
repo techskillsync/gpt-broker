@@ -1,25 +1,38 @@
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+const { totalRequests, successfulRequests, failedRequests } = require('./metrics');
+
+async function updateMetrics(ctx, next) {
+	await next();
+
+	if (ctx.path !== "/metrics") {
+		totalRequests.inc({ method: ctx.method, status_code: ctx.status })
+		if (200 <=ctx.status && ctx.status <= 299) {
+			successfulRequests.inc({ method: ctx.method, status_code: ctx.status})
+		} else {
+			failedRequests.inc({ method: ctx.method, status_code: ctx.status })
+		}
+	}
+}
 
 async function validateUser(ctx, next) {
 	const authHeader = ctx.headers['authorization'];
 	if (!authHeader) {
 		ctx.status = 401;
-		ctx.body = { error: 'Authorization header is required' };
+		ctx.body = { error: 'Authorization header is required', message: null };
 		return;
 	}
 
 	const token = authHeader.split(' ')[1];
-	const { data: user, error } = await supabase.auth.getUser(token);
+	const { data: data, error } = await supabase.auth.getUser(token);
 
-	if (error || !user) {
+	if (error || !data) {
 		ctx.status = 401;
-		ctx.body = { error: 'Invalid or expired token' };
+		ctx.body = { error: 'Invalid or expired token', message: null };
 		return;
 	}
 
-	// The user object is nested.. that why we do the below
-	ctx.state.user = user.user;
+	ctx.state.user = data.user;
 
 	await next();
 };
@@ -59,4 +72,4 @@ async function CheckRateLimit(ctx, next) {
 	await next();
 }
 
-module.exports = { validateUser, CheckRateLimit };
+module.exports = { validateUser, CheckRateLimit, updateMetrics };
