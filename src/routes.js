@@ -27,6 +27,8 @@ router.get('/simple-gpt-4o-mini-complete', async ctx => {
 		const response = await generateResponse(messages);
 		ctx.body = response;
 	} catch (error) {
+		console.log("error below:")
+		console.error(error);
 		ctx.status = 500;
 		ctx.body = { error: `GPT Threw an error - ${error.message}`};
 	}
@@ -48,6 +50,8 @@ router.post('/advanced-gpt-4o-mini-complete', async ctx => {
 		const response = await generateResponse(messages);
 		ctx.body = response;
 	} catch (error) {
+		console.log("error below:")
+		console.error(error);
 		ctx.status = 500;
 		ctx.body = { error: `GPT Threw an error - ${error.message}`};
 	}

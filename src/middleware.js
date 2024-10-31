@@ -2,7 +2,6 @@ const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 async function validateUser(ctx, next) {
-	console.time("ValidateUser");
 	const authHeader = ctx.headers['authorization'];
 	if (!authHeader) {
 		ctx.status = 401;
@@ -21,12 +20,10 @@ async function validateUser(ctx, next) {
 
 	// The user object is nested.. that why we do the below
 	ctx.state.user = user.user;
-	console.timeEnd("ValidateUser");
 	await next();
 };
 
 async function CheckRateLimit(ctx, next) {
-	console.time("CheckRateLimit");
 	const user = ctx.state.user;
 
 	if (!user) { throw Error("checkRateLimit could not get the user object. Make sure previous middleware added it to ctx.state.user before calling checkRateLimit") }
@@ -57,7 +54,6 @@ async function CheckRateLimit(ctx, next) {
 		}
 	}
 
-	console.timeEnd("CheckRateLimit");
 	await next();
 }
 

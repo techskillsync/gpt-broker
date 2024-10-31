@@ -19,5 +19,13 @@ Make a .env file in the root directory with the following. Then run `node koa-ap
 OPENAI_API_KEY=your-openai-api-key-here
 SUPABASE_URL=your-supabase-url-here
 SUPABASE_KEY=your-supabase-service-key-here
+SUPABASE_ADMIN_EMAIL=supabase-admin-username
+SUPABASE_ADMIN_PASSWORD=supabase-admin-password
 DAILY_LIMIT=50
 ```
+
+## Testing:
+
+There is an End to End test to make sure the whole process still works. 
+To run the test start the docker container (needs to be exposed on 
+default port 8011) then run `pnpm test`.
