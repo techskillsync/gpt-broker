@@ -6,7 +6,7 @@ const bodyParser = require('koa-bodyparser');
 const redis = require('redis');
 
 const { router } = require('./src/routes');
-const { validateUser, CheckRateLimit } = require('./src/middleware');
+const { updateMetrics } = require('./src/middleware')
 
 // Create Redis connection
 const client = redis.createClient({ url: process.env.REDIS_URL });
@@ -20,8 +20,7 @@ app.context.redis = client;
 // Middleware
 app.use(cors());
 app.use(bodyParser());
-app.use(validateUser);
-app.use(CheckRateLimit);
+app.use(updateMetrics)
 
 // Routes
 app.use(router.routes())

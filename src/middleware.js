@@ -1,29 +1,44 @@
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+const { totalRequests, successfulRequests, failedRequests } = require('./metrics');
+
+async function updateMetrics(ctx, next) {
+	await next();
+
+	if (ctx.path !== "/metrics") {
+		totalRequests.inc({ method: ctx.method, status_code: ctx.status })
+		if (200 <=ctx.status && ctx.status <= 299) {
+			successfulRequests.inc({ method: ctx.method, status_code: ctx.status})
+		} else {
+			failedRequests.inc({ method: ctx.method, status_code: ctx.status })
+		}
+	}
+}
 
 async function validateUser(ctx, next) {
 	const authHeader = ctx.headers['authorization'];
 	if (!authHeader) {
 		ctx.status = 401;
-		ctx.body = { error: 'Authorization header is required' };
+		ctx.body = { error: 'Authorization header is required', message: null };
 		return;
 	}
 
 	const token = authHeader.split(' ')[1];
-	const { data: user, error } = await supabase.auth.getUser(token);
+	const { data, error } = await supabase.auth.getUser(token);
 
-	if (error || !user) {
+	if (error || !data) {
 		ctx.status = 401;
-		ctx.body = { error: 'Invalid or expired token' };
+		ctx.body = { error: 'Invalid or expired token', message: null };
 		return;
 	}
 
-	// The user object is nested.. that why we do the below
-	ctx.state.user = user.user;
+	ctx.state.user = data.user;
+
 	await next();
 };
 
 async function CheckRateLimit(ctx, next) {
+	
 	const user = ctx.state.user;
 
 	if (!user) { throw Error("checkRateLimit could not get the user object. Make sure previous middleware added it to ctx.state.user before calling checkRateLimit") }
@@ -41,11 +56,11 @@ async function CheckRateLimit(ctx, next) {
 				console.log(replies)
 			}
 		});
+	
+	const ID_WHITE_LIST = process.env.ID_WHITE_LIST;
+	const DAILY_LIMIT = process.env.DAILY_LIMIT;
 
-	const id_white_list = ['87b3d3cb-8643-46e8-9e54-39c0ffe2a585'];
-	const DAILY_LIMIT = 200;
-
-	if (!id_white_list.includes(user.id)) {
+	if (!ID_WHITE_LIST.includes(user.id)) {
 		const currentRequests = parseInt(replies[2])
 		if (currentRequests > DAILY_LIMIT) {
 			ctx.status = 429;
@@ -57,4 +72,4 @@ async function CheckRateLimit(ctx, next) {
 	await next();
 }
 
-module.exports = { validateUser, CheckRateLimit };
+module.exports = { validateUser, CheckRateLimit, updateMetrics };
