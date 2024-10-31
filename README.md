@@ -24,8 +24,6 @@ Make a .env file in the root directory with the following. Then run `docker comp
 OPENAI_API_KEY=your-openai-api-key-here
 SUPABASE_URL=your-supabase-url-here
 SUPABASE_KEY=your-supabase-service-key-here
-SUPABASE_ADMIN_EMAIL=supabase-admin-username
-SUPABASE_ADMIN_PASSWORD=supabase-admin-password
 DAILY_LIMIT=50
 ```
 

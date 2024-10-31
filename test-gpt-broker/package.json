@@ -1,0 +1,20 @@
+{
+  "name": "test-gpt-broker",
+  "version": "1.0.0",
+  "description": "End to end testing for GPT-Broker",
+  "scripts": {
+    "test": "mocha EndToEnd.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "Arman Drismir",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "supertest": "^7.0.0"
+  },
+  "devDependencies": {
+    "chai": "^5.1.2",
+    "mocha": "^10.8.2"
+  }
+}
