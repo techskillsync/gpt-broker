@@ -68,4 +68,56 @@ describe('E2E Testing for GPT API on localhost', function () {
 		expect(res.status).to.equal(200);
 		expect(res.text).to.not.be.empty; // Adjust based on your response structure
 	});
+
+	it('/v2/advanced-gpt-4o-mini-complete - should return 401 if no Authorization header', async function () {
+		const messages = [{"role":"system", "content":"give me a one word response"}];
+		const res = await request('http://localhost:8011')
+			.post('/v2/advanced-gpt-4o-mini-complete')
+			.send({ messages });
+
+		expect(res.status).to.equal(401);
+		expect(res.body).to.have.property('error', "Authorization header is required");
+	});
+
+	it('/v2/advanced-gpt-4o-mini-complete - should return 400 if messages is missing', async function () {
+		const res = await request('http://localhost:8011')
+			.post('/v2/advanced-gpt-4o-mini-complete')
+			.set('Authorization', `Bearer ${bearer_token}`);
+
+		expect(res.status).to.equal(401);
+		expect(res.body).to.have.property('error', "Authorization header is required");
+	});
+
+	it('/v2/advanced-gpt-4o-mini-complete - should return 400 on invalid temperature', async function () {
+		const messages = [{"role":"system", "content":"give me a one word response"}];
+		const res = await request('http://localhost:8011')
+			.post('/v2/advanced-gpt-4o-mini-complete')
+			.send({ messages, temperature: -1 })
+			.set('Authorization', `Bearer ${bearer_token}`);
+
+		expect(res.status).to.equal(400);
+		expect(res.body).to.have.property('error', "Authorization header is required");
+	});
+
+	it('/v2/advanced-gpt-4o-mini-complete - should return 400 on malformed messages', async function () {
+		const messages = [{"role":"system"}, { "content":"hello" }];
+		const res = await request('http://localhost:8011')
+			.post('/v2/advanced-gpt-4o-mini-complete')
+			.send({ messages })
+			.set('Authorization', `Bearer ${bearer_token}`);
+
+		expect(res.status).to.equal(400);
+		expect(res.body).to.have.property('error', "each 'message' object must have a 'role' and 'content' property");
+	});
+
+	it('/v2/advanced-gpt-4o-mini-complete - should get response on successful request', async function () {
+		const messages = [{ "role": "system", "content": "give me a one word response" }];
+		const res = await request('http://localhost:8011')
+			.post('/v2/advanced-gpt-4o-mini-complete')
+			.send({ messages, temperature: 0.3 })
+			.set('Authorization', `Bearer ${bearer_token}`);
+
+		expect(res.status).to.equal(200);
+		expect(res.text).to.not.be.empty;
+	});
 });

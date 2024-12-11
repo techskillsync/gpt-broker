@@ -37,7 +37,7 @@ async function validateUser(ctx, next) {
 	await next();
 };
 
-async function CheckRateLimit(ctx, next) {
+async function checkRateLimit(ctx, next) {
 	
 	const user = ctx.state.user;
 
@@ -72,4 +72,4 @@ async function CheckRateLimit(ctx, next) {
 	await next();
 }
 
-module.exports = { validateUser, CheckRateLimit, updateMetrics };
+module.exports = { validateUser, checkRateLimit, updateMetrics };
