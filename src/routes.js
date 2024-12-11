@@ -9,7 +9,7 @@ const router = new Router();
  * Expects a param 'prompt' for GPT Generation
  * @returns - GPT's response in the message body
  */
-router.get('/simple-gpt-4o-mini-complete', validateUser, CheckRateLimit, async ctx => {
+router.get('/simple-gpt-4o-mini-complete', validateUser, checkRateLimit, async ctx => {
 	const prompt = ctx.query.prompt;
 
 	if (!prompt) {

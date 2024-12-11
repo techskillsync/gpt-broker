@@ -4,7 +4,7 @@
   "description": "API so that we don't need to expose our GPT token",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "echo 'There is a testing framework in the test-gpt-broker folder'"
   },
   "keywords": [],
   "author": "Arman Drismir",

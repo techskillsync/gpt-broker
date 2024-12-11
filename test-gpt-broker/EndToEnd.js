@@ -24,7 +24,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 			});
 		});
 
-		await supabase.auth.signInWithPassword({email: process.env.SUPABASE_ADMIN_EMAIL, password: process.env.SUPABASE_ADMIN_PASSWORD});
+		await supabase.auth.signInWithPassword({email: process.env.SUPABASE_ADMIN_ACCOUNT_EMAIL, password: process.env.SUPABASE_ADMIN_ACCOUNT_PASSWORD});
 		const response = await supabase.auth.getSession();
 		bearer_token = response.data.session.access_token
 		if (typeof bearer_token !== "string") {
@@ -84,8 +84,8 @@ describe('E2E Testing for GPT API on localhost', function () {
 			.post('/v2/advanced-gpt-4o-mini-complete')
 			.set('Authorization', `Bearer ${bearer_token}`);
 
-		expect(res.status).to.equal(401);
-		expect(res.body).to.have.property('error', "Authorization header is required");
+		expect(res.status).to.equal(400);
+		expect(res.body).to.have.property('error', "Missing required 'messages' in body of request");
 	});
 
 	it('/v2/advanced-gpt-4o-mini-complete - should return 400 on invalid temperature', async function () {
@@ -96,7 +96,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 			.set('Authorization', `Bearer ${bearer_token}`);
 
 		expect(res.status).to.equal(400);
-		expect(res.body).to.have.property('error', "Authorization header is required");
+		expect(res.body).to.have.property('error', "'temperature' must be a number between [0, 1]");
 	});
 
 	it('/v2/advanced-gpt-4o-mini-complete - should return 400 on malformed messages', async function () {

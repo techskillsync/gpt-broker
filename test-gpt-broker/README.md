@@ -9,8 +9,8 @@ sure all of its functionality is there.
 Make sure there is a `.env` in this directory with:
 
 ~~~
-SUPABASE_ADMIN_EMAIL=admin@skillsync.work
-SUPABASE_ADMIN_PASSWORD=53Y@ckqQCTEk3zx
+SUPABASE_ADMIN_ACCOUNT_EMAIL=admin@skillsync.work
+SUPABASE_ADMIN_ACCOUNT_PASSWORD=53Y@ckqQCTEk3zx
 ~~~
 
 Then run:  

@@ -38,4 +38,8 @@ ID_WHITE_LIST=[]
 
 There is an End to End test to make sure the whole process still works. 
 To run the test start the docker container (needs to be exposed on 
-default port 8011) then run `pnpm test`.
+default port 8011) then run 
+```
+cd test-gpt-broker
+pnpm test
+```
