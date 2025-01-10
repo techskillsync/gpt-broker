@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+const supabase_one = createClient(process.env.SUPABASE_URL_ONE, process.env.SUPABASE_SERVICE_KEY_ONE);
+const supabase_two = createClient(process.env.SUPABASE_URL_ONE, process.env.SUPABASE_SERVICE_KEY_ONE);
 const { totalRequests, successfulRequests, failedRequests } = require('./metrics');
 
 async function updateMetrics(ctx, next) {
@@ -24,15 +25,21 @@ async function validateUser(ctx, next) {
 	}
 
 	const token = authHeader.split(' ')[1];
-	const { data, error } = await supabase.auth.getUser(token);
+	const { data:data_one, error:error_one } = await supabase_one.auth.getUser(token);
+	const { data:data_two, error:error_two } = await supabase_two.auth.getUser(token);
 
-	if (error || !data) {
+	if (error_one && error_two) {
 		ctx.status = 401;
 		ctx.body = { error: 'Invalid or expired token', message: null };
 		return;
 	}
 
-	ctx.state.user = data.user;
+	if (!error_one) {
+		ctx.state.user = data_one.user;
+	}
+	else {
+		ctx.state.user = data_two.user;
+	}
 
 	await next();
 };

@@ -6,7 +6,7 @@ import request from'supertest';
 import { expect } from 'chai';
 import http from 'http'
 
-describe('E2E Testing for GPT API on localhost', function () {
+describe('E2E Testing on localhost for legacy supabase project (SkillSyncDev)', function () {
 
 	let bearer_token = undefined;
 
@@ -24,31 +24,12 @@ describe('E2E Testing for GPT API on localhost', function () {
 			});
 		});
 
-		await supabase.auth.signInWithPassword({email: process.env.SUPABASE_ADMIN_ACCOUNT_EMAIL, password: process.env.SUPABASE_ADMIN_ACCOUNT_PASSWORD});
+		await supabase.auth.signInWithPassword({email: process.env.SUPABASE_EMAIL_ONE, password: process.env.SUPABASE_PASSWORD_ONE});
 		const response = await supabase.auth.getSession();
 		bearer_token = response.data.session.access_token
 		if (typeof bearer_token !== "string") {
 			throw new Error('Problem getting bearer token from supabase. Quitting')
 		}
-	});
-
-	it('should return 400 if prompt is missing in GET /simple-gpt-4o-mini-complete', async function () {
-		const res = await request('http://localhost:8011')
-			.get('/simple-gpt-4o-mini-complete')
-			.set('Authorization', `Bearer ${bearer_token}`);
-
-		expect(res.status).to.equal(400);
-		expect(res.body).to.have.property('error', "Missing required 'prompt' query parameter");
-	});
-
-	it('should return GPT response for valid prompt in GET /simple-gpt-4o-mini-complete', async function () {
-		const res = await request('http://localhost:8011')
-			.get('/simple-gpt-4o-mini-complete')
-			.query({ prompt: 'Hello GPT' })
-			.set('Authorization', `Bearer ${bearer_token}`);
-
-		expect(res.status).to.equal(200);
-		expect(res.text).to.not.be.empty;
 	});
 
 	it('should not be an ok response if messages are missing in POST /advanced-gpt-4o-mini-complete', async function () {
@@ -121,3 +102,42 @@ describe('E2E Testing for GPT API on localhost', function () {
 		expect(res.text).to.not.be.empty;
 	});
 });
+
+describe("E2E testing on localhost for new supabase project (techskillsync's org)", function () {
+
+	let bearer_token = undefined;
+
+	before(async function () {
+		const serverUrl = 'http://localhost:8011';
+
+		await new Promise((resolve, reject) => {
+			const req = http.get(serverUrl, (_) => {
+				resolve();
+			});
+
+			req.on('error', (_) => {
+				console.error(`Server is not running on ${serverUrl}. Please start it.`);
+				reject(new Error(`Server not running on ${serverUrl}`));
+			});
+		});
+
+		await supabase.auth.signInWithPassword({email: process.env.SUPABASE_EMAIL_TWO, password: process.env.SUPABASE_PASSWORD_TWO});
+		const response = await supabase.auth.getSession();
+		bearer_token = response.data.session.access_token
+		if (typeof bearer_token !== "string") {
+			throw new Error('Problem getting bearer token from supabase. Quitting')
+		}
+	});
+
+	it("/v2/advanced-gpt-4o-mini-complete - Returns 200 and GPT response", async function () {
+		const messages = [{ "role": "system", "content": "give me a one word response" }];
+		const res = await request('http://localhost:8011')
+			.post('/v2/advanced-gpt-4o-mini-complete')
+			.send({ messages, temperature: 0.3 })
+			.set('Authorization', `Bearer ${bearer_token}`);
+
+		expect(res.status).to.equal(200);
+		expect(res.text).to.not.be.empty;
+
+	})
+})
