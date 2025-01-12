@@ -26,7 +26,6 @@ describe('E2E Testing for GPT API on localhost', function () {
 
 		await supabase.auth.signInWithPassword({email: process.env.SUPABASE_EMAIL, password: process.env.SUPABASE_PASSWORD});
 		const response = await supabase.auth.getSession();
-		console.log(response)
 		bearer_token = response.data.session.access_token
 		if (typeof bearer_token !== "string") {
 			throw new Error('Problem getting bearer token from supabase. Quitting')
