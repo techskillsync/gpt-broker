@@ -6,6 +6,37 @@ const { register } = require('./metrics')
 const router = new Router();
 
 /*
+ * Expects a param 'prompt' for GPT Generation
+ * @returns - GPT's response in the message body
+ */
+router.get('/simple-gpt-4o-mini-complete', validateUser, checkRateLimit, async ctx => {
+	const prompt = ctx.query.prompt;
+
+	if (!prompt) {
+		ctx.status = 400;
+		ctx.body = { error: "Missing required 'prompt' query parameter", message: null };
+		return;
+	}
+
+	if (typeof prompt !== 'string') {
+		ctx.status = 400;
+		ctx.body = { error: "'prompt' must be a string", message: null };
+		return;
+	}
+
+	try {
+		messages = [{ role: "system", content: prompt }]
+		const response = await generateResponse(messages);
+		ctx.body = response;
+	} catch (error) {
+		console.log("error below:")
+		console.error(error);
+		ctx.status = 500;
+		ctx.body = { error: `GPT Threw an error - ${error.message}`};
+	}
+})
+
+/*
  * Request body must contain an array of `messages` to pass to GPT
  * ie. [ { role: 'system', content: "Write me a poem" }, ... ]
  * @returns - a response with GPT's response in the body

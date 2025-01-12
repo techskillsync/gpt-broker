@@ -16,6 +16,11 @@ More complicated but allows full control over the prompts passed to ChatGPT. Req
   - **Autentication** - A header with the user's access token, in the format "Bearer <access_token>"
   - **messages** passed in the message body as JSON. Must be a valid array of messages that ChatGPT accepts. Ie, in the format: `[ { role: 'system', content: "Write me a poem" }, ... ]`
 
+### /simple-gpt-4o-mini-complete
+For simple requests that fit in a URL. Requires:
+  - **prompt** - A URL parameter to give to ChatGPT
+  - **Autentication** - A header with the user's access token, in the format "Bearer <access_token>"
+
 ### /metrics
 Application metrics for Prometheus
 
@@ -23,11 +28,8 @@ Application metrics for Prometheus
 Make a .env file in the root directory with the following. Then run `docker compose up` to start **gpt_broker**.
 ```
 OPENAI_API_KEY=your-openai-api-key-here
-SUPABASE_URL_ONE=url-for-first-supabase-project-here
-SUPABASE_SERVICE_KEY_ONE=key-for-first-supabase-project-here
-SUPABASE_URL_TWO=url-for-second-supabase-project-here
-SUPABASE_SERVICE_KEY_TWO=key-for-second-supabase-project-here
-REDIS_URL=redis://:@redis-stack:6379
+SUPABASE_URL=your-supabase-url-here
+SUPABASE_KEY=your-supabase-service-key-here
 DAILY_LIMIT=50
 ID_WHITE_LIST=[]
 ```
