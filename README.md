@@ -29,7 +29,8 @@ Make a .env file in the root directory with the following. Then run `docker comp
 ```
 OPENAI_API_KEY=your-openai-api-key-here
 SUPABASE_URL=your-supabase-url-here
-SUPABASE_KEY=your-supabase-service-key-here
+SUPABASE_SERVICE_KEY=your-supabase-service-key-here
+REDIS_URL=redis://:@redis-stack:6379
 DAILY_LIMIT=50
 ID_WHITE_LIST=[]
 ```

@@ -9,8 +9,10 @@ sure all of its functionality is there.
 Make sure there is a `.env` in this directory with:
 
 ~~~
-SUPABASE_ADMIN_ACCOUNT_EMAIL=admin@skillsync.work
-SUPABASE_ADMIN_ACCOUNT_PASSWORD=53Y@ckqQCTEk3zx
+SUPABASE_URL=<supabase_url>
+SUPABASE_ANON_KEY=<supabase_anon_key>
+SUPABASE_EMAIL=<admin@skillsync.work>
+SUPABASE_PASSWORD=<supabase_account_password>
 ~~~
 
 Then run:  
