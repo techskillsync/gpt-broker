@@ -1,7 +1,7 @@
 import { config } from 'dotenv'
 config()
 import { createClient } from '@supabase/supabase-js';
-const supabase = createClient("https://ywyqgzfoobfinubdxdve.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3eXFnemZvb2JmaW51YmR4ZHZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTc4MzI5MTUsImV4cCI6MjAzMzQwODkxNX0.c-FSJ2dK6BhEQRyQtfcPd1uCkudZQzJh0BA-QzXmERg");
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 import request from'supertest';
 import { expect } from 'chai';
 import http from 'http'
@@ -11,7 +11,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 	let bearer_token = undefined;
 
 	before(async function () {
-		const serverUrl = 'http://localhost:8011';
+		const serverUrl = 'http://localhost:8023';
 
 		await new Promise((resolve, reject) => {
 			const req = http.get(serverUrl, (res) => {
@@ -33,7 +33,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 	});
 
 	it('should return 400 if prompt is missing in GET /simple-gpt-4o-mini-complete', async function () {
-		const res = await request('http://localhost:8011')
+		const res = await request('http://localhost:8023')
 			.get('/simple-gpt-4o-mini-complete')
 			.set('Authorization', `Bearer ${bearer_token}`);
 
@@ -42,7 +42,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 	});
 
 	it('should return GPT response for valid prompt in GET /simple-gpt-4o-mini-complete', async function () {
-		const res = await request('http://localhost:8011')
+		const res = await request('http://localhost:8023')
 			.get('/simple-gpt-4o-mini-complete')
 			.query({ prompt: 'Hello GPT' })
 			.set('Authorization', `Bearer ${bearer_token}`);
@@ -52,7 +52,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 	});
 
 	it('should not be an ok response if messages are missing in POST /advanced-gpt-4o-mini-complete', async function () {
-		const res = await request('http://localhost:8011')
+		const res = await request('http://localhost:8023')
 			.post('/advanced-gpt-4o-mini-complete')
 			.set('Authorization', `Bearer ${bearer_token}`);
 		expect(res.status).to.not.be.within(200, 299);
@@ -60,7 +60,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 
 	it('should return GPT response for valid messages in POST /advanced-gpt-4o-mini-complete', async function () {
 		const messages = [{ "role": "system", "content": "give me a one word response" }];
-		const res = await request('http://localhost:8011')
+		const res = await request('http://localhost:8023')
 			.post('/advanced-gpt-4o-mini-complete')
 			.send(messages)
 			.set('Authorization', `Bearer ${bearer_token}`);
@@ -71,7 +71,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 
 	it('/v2/advanced-gpt-4o-mini-complete - should return 401 if no Authorization header', async function () {
 		const messages = [{"role":"system", "content":"give me a one word response"}];
-		const res = await request('http://localhost:8011')
+		const res = await request('http://localhost:8023')
 			.post('/v2/advanced-gpt-4o-mini-complete')
 			.send({ messages });
 
@@ -80,7 +80,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 	});
 
 	it('/v2/advanced-gpt-4o-mini-complete - should return 400 if messages is missing', async function () {
-		const res = await request('http://localhost:8011')
+		const res = await request('http://localhost:8023')
 			.post('/v2/advanced-gpt-4o-mini-complete')
 			.set('Authorization', `Bearer ${bearer_token}`);
 
@@ -90,7 +90,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 
 	it('/v2/advanced-gpt-4o-mini-complete - should return 400 on invalid temperature', async function () {
 		const messages = [{"role":"system", "content":"give me a one word response"}];
-		const res = await request('http://localhost:8011')
+		const res = await request('http://localhost:8023')
 			.post('/v2/advanced-gpt-4o-mini-complete')
 			.send({ messages, temperature: -1 })
 			.set('Authorization', `Bearer ${bearer_token}`);
@@ -101,7 +101,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 
 	it('/v2/advanced-gpt-4o-mini-complete - should return 400 on malformed messages', async function () {
 		const messages = [{"role":"system"}, { "content":"hello" }];
-		const res = await request('http://localhost:8011')
+		const res = await request('http://localhost:8023')
 			.post('/v2/advanced-gpt-4o-mini-complete')
 			.send({ messages })
 			.set('Authorization', `Bearer ${bearer_token}`);
@@ -112,7 +112,7 @@ describe('E2E Testing for GPT API on localhost', function () {
 
 	it('/v2/advanced-gpt-4o-mini-complete - should get response on successful request', async function () {
 		const messages = [{ "role": "system", "content": "give me a one word response" }];
-		const res = await request('http://localhost:8011')
+		const res = await request('http://localhost:8023')
 			.post('/v2/advanced-gpt-4o-mini-complete')
 			.send({ messages, temperature: 0.3 })
 			.set('Authorization', `Bearer ${bearer_token}`);
