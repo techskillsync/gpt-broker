@@ -1,6 +1,7 @@
 services:
   gpt-broker:
     build: .
+    container_name: gpt-broker
     platform: linux/amd64
     ports:
       - "8011:8011"
