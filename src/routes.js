@@ -26,7 +26,7 @@ router.get('/simple-gpt-4o-mini-complete', validateUser, checkRateLimit, async c
 
 	try {
 		messages = [{ role: "system", content: prompt }]
-		const response = await generateResponse(messages);
+		const response = await generateResponse(messages, 0.7, "gpt-4o-mini");
 		ctx.body = response;
 	} catch (error) {
 		console.log("error below:")
@@ -49,7 +49,7 @@ router.post('/advanced-gpt-4o-mini-complete', validateUser, checkRateLimit, asyn
 		return;
 	}
 	try {
-		const response = await generateResponse(messages);
+		const response = await generateResponse(messages, 0.7, "gpt-4o-mini");
 		ctx.body = response;
 	} catch (error) {
 		console.log("error below:")
@@ -118,7 +118,49 @@ router.post('/v2/advanced-gpt-4o-mini-complete', validateUser, checkRateLimit, a
 	}
 
 	try {
-		const response = await generateResponse(messages, temperature);
+		const response = await generateResponse(messages, temperature, model="gpt-4o-mini");
+		ctx.body = { message: response};
+	} catch (error) {
+		console.log("error below:")
+		console.error(error);
+		ctx.status = 500;
+		ctx.body = { error: `GPT Threw an error - ${error.message}`, message: null};
+	}
+})
+
+
+router.post('/gpt-4o', validateUser, checkRateLimit, async ctx => {
+	const messages = ctx.request.body.messages;
+	const temperature = ctx.request.body.temperature;
+
+	if (temperature && (typeof temperature !== 'number' || temperature < 0 || temperature > 1)) {
+		ctx.status = 400;
+		ctx.body = { error: "'temperature' must be a number between [0, 1]" };
+		return;
+	}
+
+	if (!messages) {
+		ctx.status = 400;
+		ctx.body = { error: "Missing required 'messages' in body of request", message: null };
+		return;
+	}
+
+	if (!Array.isArray(messages)) { 
+		ctx.status = 400;
+		ctx.body = {"error": "'messages' must be an array"}; 
+		return;
+	}
+
+	for (const message of messages) {
+		if (typeof message !== 'object' || !message.role || !message.content) {
+			ctx.status = 400;
+			ctx.body = {"error": "each 'message' object must have a 'role' and 'content' property"}; 
+			return;
+		}
+	}
+
+	try {
+		const response = await generateResponse(messages, temperature, "gpt-4o");
 		ctx.body = { message: response};
 	} catch (error) {
 		console.log("error below:")

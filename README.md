@@ -6,6 +6,20 @@ For Prometheus integration a /metrics endpoint with basic traffic information is
 
 ## Endpoints:
 
+### /gpt-4o
+Simple endpoint for 4o, supports temperature.
+Request body:
+```js
+Request Header:
+Authorization: Bearer <supabase-access-token>
+
+Request Body:
+{
+    "messages": <string to query 4o with>,
+    "temperature": <float between 0 and 1>
+}
+```
+
 ### /v2/advanced-gpt-4o-mini-complete
 This version has small syntax tweaks and lets the caller specify a temperature to pass to gpt
   - **Request Headers:** - An Authorization header with the user's access token, in the format "Authorization": "Bearer <access_token>"
