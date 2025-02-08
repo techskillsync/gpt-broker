@@ -2,7 +2,6 @@ services:
   techskillsync-broker:
     container_name: techskillsync-broker
     build: .
-    container_name: gpt-broker
     platform: linux/amd64
     ports:
       - "8023:8011"

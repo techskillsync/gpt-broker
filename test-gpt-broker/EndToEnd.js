@@ -121,9 +121,9 @@ describe('E2E Testing for GPT API on localhost', function () {
 		expect(res.text).to.not.be.empty;
 	});
 
-	if ('/gpt-4o - should get response on successful request', async function() {
+	it ('/gpt-4o - should get response on successful request', async function() {
 		const messages = [ { "role": "system", "content": "give me a one word response" } ];
-		const res = await request('http://localhost:8011')
+		const res = await request('http://localhost:8023')
 			.post('/gpt-4o')
 			.send({ messages })
 			.set('Authorization', `Bearer ${bearer_token}`);
