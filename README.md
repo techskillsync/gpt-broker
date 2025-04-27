@@ -39,7 +39,12 @@ For simple requests that fit in a URL. Requires:
 Application metrics for Prometheus
 
 ## Setup:
-Make a .env file in the root directory with the following. Then run `docker compose up` to start **gpt_broker**.
+
+Place two .env files in the root directory of this project. The first should have the information for the 
+**SkillSyncDev** supabase project and it should have the name `.env.sksndev`. The second should have the 
+information for the **techskillsync** supabase project and it should have the name `.env.techsksn`.
+
+Both .env files should have the following fields:
 ```
 OPENAI_API_KEY=your-openai-api-key-here
 SUPABASE_URL=your-supabase-url-here
@@ -49,12 +54,8 @@ DAILY_LIMIT=50
 ID_WHITE_LIST=[]
 ```
 
+
+
 ## Testing:
 
-There is an End to End test to make sure the whole process still works. 
-To run the test start the docker container (needs to be exposed on 
-default port 8011) then run 
-```
-cd test-gpt-broker
-pnpm test
-```
+There is a testing suite for both containers as well as the production endpoints. See the project in `test-gpt-broker` for more info.

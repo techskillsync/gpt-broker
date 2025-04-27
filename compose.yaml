@@ -1,0 +1,44 @@
+services:
+  sksndev-gpt-broker:
+    profiles: ["sksndev"]
+    container_name: sksndev-gpt-broker
+    build: .
+    platform: linux/amd64
+    ports:
+      - "8011:8011"
+    depends_on:
+      - sksndev-redis-stack
+    volumes:
+      - ./.env.sksndev:/app/.env
+    restart: unless-stopped
+  
+  sksndev-redis-stack:
+    profiles: ["sksndev"]
+    image: redis/redis-stack:latest
+    container_name: sksndev-redis-stack
+    ports:
+      - "8013:6379"
+      - "8014:8001"
+    restart: unless-stopped
+
+  techsksn-gpt-broker:
+    profiles: ["techsksn"]
+    container_name: techsksn-gpt-broker
+    build: .
+    platform: linux/amd64
+    ports:
+      - "8023:8011"
+    depends_on:
+      - techsksn-redis-stack
+    volumes:
+      - ./.env.techsksn:/app/.env
+    restart: unless-stopped
+
+  techsksn-redis-stack:
+    profiles: ["techsksn"]
+    image: redis/redis-stack:latest
+    container_name: techsksn-redis-stack
+    ports:
+      - "8024:6379"
+      - "8025:8001"
+    restart: unless-stopped
