@@ -26,7 +26,9 @@ async function validateUser(ctx, next) {
 	const token = authHeader.split(' ')[1];
 	const { data, error } = await supabase.auth.getUser(token);
 
+
 	if (error || !data) {
+		console.log(`Failed to authenticate user with token ${token}`)
 		ctx.status = 401;
 		ctx.body = { error: 'Invalid or expired token', message: null };
 		return;

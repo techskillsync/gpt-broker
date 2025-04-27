@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "End to end testing for GPT-Broker",
   "scripts": {
-    "test": "mocha EndToEnd.js"
+    "test": "node TestManager.js"
   },
   "type": "module",
   "keywords": [],

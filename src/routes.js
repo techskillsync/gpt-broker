@@ -5,6 +5,17 @@ const { register } = require('./metrics')
 
 const router = new Router();
 
+
+/*
+ * For health checks
+ */
+router.get('/health', async ctx => {
+	ctx.status = 200;
+	ctx.body = "OK";
+	return;
+})
+
+
 /*
  * Expects a param 'prompt' for GPT Generation
  * @returns - GPT's response in the message body
