@@ -54,6 +54,7 @@ DAILY_LIMIT=50
 ID_WHITE_LIST=[]
 ```
 
+Now run `./both_up` to boot up both containers and `./both_down` to stop both containers.
 
 
 ## Testing:
