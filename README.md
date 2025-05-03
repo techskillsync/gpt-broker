@@ -6,37 +6,94 @@ For Prometheus integration a /metrics endpoint with basic traffic information is
 
 ## Endpoints:
 
-### /gpt-4o
-Simple endpoint for 4o, supports temperature.
-Request body:
-```js
-Request Header:
+### /stream
+```sh
+# Streams a chat completion back to the user as it arrives
+
+# Method:
+POST
+
+# Request Header:
 Authorization: Bearer <supabase-access-token>
 
-Request Body:
+# Request Body:
 {
-    "messages": <string to query 4o with>,
-    "temperature": <float between 0 and 1>
+    "messages": <string_to_query_4o_with>, # eg. `[ { "role": "system", "content": "Write me a poem" }, ... ]`
+    "temperature": <float_between_0_and_1>,
+    "model": <gpt_model_to_use> # either "gpt-4o" or "gpt-4o-mini"
+}
+```
+
+### /gpt-4o
+```sh
+# Simple endpoint for 4o, supports temperature.
+
+# Method:
+POST
+
+# Request Header:
+Authorization: Bearer <supabase-access-token>
+
+# Request Body:
+{
+    "messages": <string_to_query_4o_with>,
+    "temperature": <float_between_0_and_1>
 }
 ```
 
 ### /v2/advanced-gpt-4o-mini-complete
-This version has small syntax tweaks and lets the caller specify a temperature to pass to gpt
-  - **Request Headers:** - An Authorization header with the user's access token, in the format "Authorization": "Bearer <access_token>"
-  - **Request Body:** An object with a "messages" field and an optional "temperature" field. Messages Must be a valid array of messages that ChatGPT accepts. Ie, in the format: `[ { role: 'system', content: "Write me a poem" }, ... ]`
+```sh
+# v2 has small syntax tweaks and lets the caller specify a temperature to pass to gpt
+
+# Method:
+POST
+
+# Request Header:
+Authorization: Bearer <supabase-access-token>
+
+# Request Body:
+{
+    "messages": <message_array_for_gpt>, # eg. `[ { "role": "system", "content": "Write me a poem" }, ... ]`
+    "temperature": <float_between_0_and_1>
+}
+```
 
 ### /advanced-gpt-4o-mini-complete
-More complicated but allows full control over the prompts passed to ChatGPT. Requires:
-  - **Autentication** - A header with the user's access token, in the format "Bearer <access_token>"
-  - **messages** passed in the message body as JSON. Must be a valid array of messages that ChatGPT accepts. Ie, in the format: `[ { role: 'system', content: "Write me a poem" }, ... ]`
+```sh
+# More complicated but allows full control over the prompts passed to ChatGPT.
+# Does not support temperature, for that look for the v2 version of this endpoint.
+
+# Method:
+POST
+
+# Request Header:
+Authorization: Bearer <supabase-access-token>
+
+# Request Body:
+{
+    "messages": <message_array_for_gpt>, # eg. `[ { "role": "system", "content": "Write me a poem" }, ... ]`
+}
+```
 
 ### /simple-gpt-4o-mini-complete
-For simple requests that fit in a URL. Requires:
-  - **prompt** - A URL parameter to give to ChatGPT
-  - **Autentication** - A header with the user's access token, in the format "Bearer <access_token>"
+```sh
+# For simple requests that fit in a query param.
+
+# Method:
+GET
+
+# Request Parameters:
+prompt=<query_for_chat_gpt> # eg. "Write me a poem"
+
+# Request Header: 
+Authorization: Bearer <supabase-access-token>
+```
 
 ### /metrics
-Application metrics for Prometheus
+```sh
+# Method:
+GET
+```
 
 ## Setup:
 
