@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo 'There is a testing framework in the test-gpt-broker folder'"
   },
+  "type": "module",
   "keywords": [],
   "author": "Arman Drismir",
   "license": "ISC",

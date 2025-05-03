@@ -1,6 +1,6 @@
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-const { totalRequests, successfulRequests, failedRequests } = require('./metrics');
+import { totalRequests, successfulRequests, failedRequests } from './metrics.js';
 
 async function updateMetrics(ctx, next) {
 	await next();
@@ -74,4 +74,4 @@ async function checkRateLimit(ctx, next) {
 	await next();
 }
 
-module.exports = { validateUser, checkRateLimit, updateMetrics };
+export { validateUser, checkRateLimit, updateMetrics };

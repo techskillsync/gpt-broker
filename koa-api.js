@@ -1,12 +1,11 @@
-require('dotenv').config(); // Load environment variables
+import 'dotenv/config';
+import Koa from 'koa';
+import cors from '@koa/cors';
+import bodyParser from 'koa-bodyparser';
+import redis from 'redis';
 
-const Koa = require('koa');
-const cors = require('@koa/cors');
-const bodyParser = require('koa-bodyparser');
-const redis = require('redis');
-
-const { router } = require('./src/routes');
-const { updateMetrics } = require('./src/middleware')
+import { router } from './src/routes.js';
+import { updateMetrics } from './src/middleware.js';
 
 // Create Redis connection
 const client = redis.createClient({ url: process.env.REDIS_URL });

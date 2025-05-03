@@ -1,4 +1,4 @@
-const client = require('prom-client')
+import client from 'prom-client'
 const register = new client.Registry()
 
 const totalRequests = new client.Counter({
@@ -23,7 +23,7 @@ register.registerMetric(totalRequests);
 register.registerMetric(successfulRequests);
 register.registerMetric(failedRequests);
 
-module.exports = {
+export {
 	register,
 	totalRequests,
 	successfulRequests,
