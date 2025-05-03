@@ -1,7 +1,8 @@
-const Router = require('koa-router')
-const { validateUser, checkRateLimit } = require('./middleware')
-const { generateResponse } = require('./utils')
-const { register } = require('./metrics')
+import Router from "koa-router"
+import { validateUser, checkRateLimit } from "./middleware.js"
+import { generateResponse, generateResponseStream } from "./openaiChatCompletions.js"
+import { register }  from "./metrics.js"
+import { validateStreamResponse } from "./requestValidators.js"
 
 const router = new Router();
 
@@ -13,6 +14,12 @@ router.get('/health', async ctx => {
 	ctx.status = 200;
 	ctx.body = "OK";
 	return;
+})
+
+
+router.get('/metrics', async ctx => {
+	ctx.type = 'text/plain';
+	ctx.body = await register.metrics();
 })
 
 
@@ -36,7 +43,7 @@ router.get('/simple-gpt-4o-mini-complete', validateUser, checkRateLimit, async c
 	}
 
 	try {
-		messages = [{ role: "system", content: prompt }]
+		const messages = [{ role: "system", content: prompt }]
 		const response = await generateResponse(messages, 0.7, "gpt-4o-mini");
 		ctx.body = response;
 	} catch (error) {
@@ -129,7 +136,7 @@ router.post('/v2/advanced-gpt-4o-mini-complete', validateUser, checkRateLimit, a
 	}
 
 	try {
-		const response = await generateResponse(messages, temperature, model="gpt-4o-mini");
+		const response = await generateResponse(messages, temperature, "gpt-4o-mini");
 		ctx.body = { message: response};
 	} catch (error) {
 		console.log("error below:")
@@ -182,9 +189,35 @@ router.post('/gpt-4o', validateUser, checkRateLimit, async ctx => {
 })
 
 
-router.get('/metrics', async ctx => {
-	ctx.type = 'text/plain';
-	ctx.body = await register.metrics();
-})
+router.post('/stream', validateUser, checkRateLimit, async ctx => {
+	const valid_obj = validateStreamResponse(ctx);
+	if (!valid_obj.valid) {
+		ctx.status = 400;
+		ctx.body = { error: valid_obj.message };
+		return;
+	}
+	ctx.set('Content-Type', 'application/json');
+	ctx.set('Cache-Control', 'no-cache');
+	ctx.set('Connection', 'keep-alive');
+	ctx.status = 200;
+	ctx.respond = false;
 
-module.exports = { router };
+	const { messages, temperature = 0.7, model } = ctx.request.body;
+
+	try {
+		for await (const chunk of generateResponseStream(messages, temperature, model)) {
+			// Add \n to the receiver can accept one line at a time
+			ctx.res.write(JSON.stringify({ data: chunk }) + '\n');
+		}
+	} catch (err) {
+		console.error('Streaming error', err);
+		// Add \n to the receiver can accept one line at a time
+		ctx.res.write(JSON.stringify({ error: "Error while streaming" }) + '\n');
+	} finally {
+		ctx.res.end();
+	}
+});
+
+
+
+export { router };
