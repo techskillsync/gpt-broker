@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import request from'supertest';
+import request from 'supertest';
 import { expect } from 'chai';
 
 const BASE_URL = process.env.BASE_URL;
@@ -45,11 +45,6 @@ describe(`E2E Testing for GPT API on ${process.env.BASE_URL}`, function () {
 			.get('/simple-gpt-4o-mini-complete')
 			.query({ prompt: 'Hello GPT' })
 			.set('Authorization', `Bearer ${bearer_token}`);
-
-		if (!res.ok) {
-			console.log(bearer_token)
-			console.log(res.text)
-		}
 
 		expect(res.status).to.equal(200);
 		expect(res.text).to.not.be.empty;
@@ -133,5 +128,71 @@ describe(`E2E Testing for GPT API on ${process.env.BASE_URL}`, function () {
 			.set('Authorization', `Bearer ${bearer_token}`);
 		expect(res.status).to.equal(200);
 		expect(res.text).to.not.be.empty;
+	});
+
+	it ('/stream - should be able to stream gpt-4o-mini', async function() {
+		const messages = [ { "role": "system", "content": "white me a ten line poem" } ];
+		const res = await request(`${process.env.BASE_URL}`)
+			.post('/stream')
+			.send({ messages, temperature: 0.7, model: "gpt-4o-mini" })
+			.set('Authorization', `Bearer ${bearer_token}`)
+			.buffer(true)
+			// Below we define a customer parser. We need to do this because
+			// gpt-broker will send many JSON objects separated by newlines,
+			// this will break request's default parsing and it will throw 
+			// an error.
+			.parse((res, callback) => {
+				let data = '';
+				res.on('data', chunk => { data += chunk.toString('utf8') });
+				res.on('end', () => callback(null, data));
+			});
+		
+		expect(res.status).to.equal(200);
+		const res_body = res.body;
+		const lines = res_body.split('\n');
+		expect(lines.length).to.be.greaterThan(1);
+	});
+
+	it ('/stream - should be able to stream gpt-4o', async function() {
+		const messages = [ { "role": "system", "content": "white me a ten line poem" } ];
+		const res = await request(`${process.env.BASE_URL}`)
+			.post('/stream')
+			.send({ messages, temperature: 0.7, model: "gpt-4o-mini" })
+			.set('Authorization', `Bearer ${bearer_token}`)
+			.buffer(true)
+			// Below we define a customer parser. We need to do this because
+			// gpt-broker will send many JSON objects separated by newlines,
+			// this will break request's default parsing and it will throw 
+			// an error.
+			.parse((res, callback) => {
+				let data = '';
+				res.on('data', chunk => { data += chunk.toString('utf8') });
+				res.on('end', () => callback(null, data));
+			});
+		
+		expect(res.status).to.equal(200);
+		const res_body = res.body;
+		const lines = res_body.split('\n');
+		expect(lines.length).to.be.greaterThan(1);
+	});
+
+	it ('/stream should fail if bad token', async function() {
+		const messages = [ { "role": "system", "content": "white me a ten line poem" } ];
+		const res = await request(`${process.env.BASE_URL}`)
+			.post('/stream')
+			.send({ messages, temperature: 0.7, model: "gpt-4o-mini" })
+			.set('Authorization', 'Bearer abcdefg')
+			.buffer(true)
+			// Below we define a customer parser. We need to do this because
+			// gpt-broker will send many JSON objects separated by newlines,
+			// this will break request's default parsing and it will throw 
+			// an error.
+			.parse((res, callback) => {
+				let data = '';
+				res.on('data', chunk => { data += chunk.toString('utf8') });
+				res.on('end', () => callback(null, data));
+			});
+		
+		expect(res.status).to.equal(401);
 	});
 });
