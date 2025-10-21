@@ -16,11 +16,6 @@ router.get('/health', async ctx => {
 	return;
 })
 
-router.get('/healthz', async ctx => {
-	ctx.status = 200;
-	ctx.body = { status: 'ok', uptime_sec: Math.floor(process.uptime()) };
-})
-
 
 router.get('/metrics', async ctx => {
 	ctx.type = 'text/plain';

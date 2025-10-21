@@ -2,11 +2,19 @@ import 'dotenv/config';
 import Koa from 'koa';
 import cors from '@koa/cors';
 import bodyParser from 'koa-bodyparser';
+import redis from 'redis';
 
 import { router } from './src/routes.js';
 import { updateMetrics } from './src/middleware.js';
 
+// Create Redis connection
+const client = redis.createClient({ url: process.env.REDIS_URL });
+client.on('error', err => {console.error('Redis Client Error', err); });
+(async () => { await client.connect(); })();
+
 const app = new Koa();
+
+app.context.redis = client;
 
 // Middleware
 app.use(cors());
@@ -24,13 +32,14 @@ app.use(async (ctx) => {
     ctx.body = { error: 'Endpoint not found' };
 });
 
-const PORT = 5002;
+const PORT = 8011;
 app.listen(PORT, () => {
 	console.log(` - 💼 GPT Broker running on port ${PORT}`)
 });
 
-// Graceful shutdown
+// Close Redis connection when stopping the server
 process.on('SIGINT', async () => {
-    console.log(' - 🚪 GPT Broker stopping')
+    await app.context.redis.quit();
+    console.log(' - 🚪 GPT Broker stopped & connection with redis was closed')
     process.exit(0);
 });

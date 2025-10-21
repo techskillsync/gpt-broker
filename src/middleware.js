@@ -2,9 +2,6 @@ import { createClient } from '@supabase/supabase-js';
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 import { totalRequests, successfulRequests, failedRequests } from './metrics.js';
 
-// In-memory rate limiter store: { key: { count, resetAt } }
-const rateStore = new Map();
-
 async function updateMetrics(ctx, next) {
 	await next();
 
@@ -43,27 +40,31 @@ async function validateUser(ctx, next) {
 };
 
 async function checkRateLimit(ctx, next) {
+	
 	const user = ctx.state.user;
-	if (!user) {
-		throw Error("checkRateLimit could not get the user object. Make sure previous middleware added it to ctx.state.user before calling checkRateLimit")
-	}
+
+	if (!user) { throw Error("checkRateLimit could not get the user object. Make sure previous middleware added it to ctx.state.user before calling checkRateLimit") }
 
 	const key = `rate_limit:${user.id}`;
-	const windowMs = 60 * 60 * 1000; // 1 hour
+	const windowSeconds = 60 * 60; // 1 hour
 	const limit = 100;
-	const now = Date.now();
+	const replies = await ctx.redis.multi()
+		.incr(key)
+		.expire(key, windowSeconds)
+		.get(key)
+		.exec((err, replies) => {
+			if (err) {
+				console.error(' - ‼️ redis error: ' + err);
+			} else {
+				console.log(replies)
+			}
+		});
+	
+	const currentRequests = parseInt(replies[2]);
 
-	let entry = rateStore.get(key);
-	if (!entry || now >= entry.resetAt) {
-		entry = { count: 0, resetAt: now + windowMs };
-		rateStore.set(key, entry);
-	}
-
-	entry.count += 1;
-
-	if (entry.count > limit) {
+	if (currentRequests > limit) {
 		ctx.status = 429;
-		ctx.body = { error: 'GPT Rate limit exceeded. Try again later.', message: null };
+		ctx.body = { error: 'GPT Rate limit exceeded. Try again later.', message: null }
 		return;
 	}
 

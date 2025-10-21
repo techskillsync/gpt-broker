@@ -28,6 +28,15 @@ jobs:
         run: |
           docker network inspect gpt-broker-net >/dev/null 2>&1 || docker network create gpt-broker-net
 
+      - name: Ensure Redis is running
+        run: |
+          if [ ! "$(docker ps -q -f name=redis-stack)" ]; then
+            if [ "$(docker ps -aq -f name=redis-stack)" ]; then
+              docker rm -f redis-stack
+            fi
+            docker run -d --name redis-stack --network gpt-broker-net \
+              --restart unless-stopped -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+          fi
 
       - name: Stop and Remove Existing App Container
         run: |
@@ -43,8 +52,11 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
         run: |
+          REDIS_URL_VALUE="${REDIS_URL:-redis://:@redis-stack:6379}"
           docker run -d --name gpt-broker --network gpt-broker-net \
-            --restart unless-stopped -p 5002:5002 \
+            --restart unless-stopped -p 8011:8011 \
             -e OPENAI_API_KEY -e SUPABASE_URL -e SUPABASE_SERVICE_KEY \
+            -e REDIS_URL="$REDIS_URL_VALUE" \
             skillsyncrecruiter/gpt-broker:latest
