@@ -21,7 +21,7 @@ Notes:
   - `docker compose up -d`
   - This launches `redis-stack` and `gpt-broker` using `.env`.
 - Stop services: `docker compose down`
-- Broker listens on `http://localhost:8011`.
+- Broker listens on `http://localhost:5002`.
 
 ## Endpoints
 - `POST /stream` — Streams chat completions back to client.
@@ -51,11 +51,11 @@ This repo includes CI/CD workflows that build and deploy to a self-hosted runner
   - Prunes disk, logs into Docker Hub, pulls latest image.
   - Ensures a Docker network `gpt-broker-net` exists.
   - Ensures a `redis-stack` container is running on that network.
-  - Runs `gpt-broker` on port `8011`, injecting env from GitHub Secrets using `-e` flags.
+  - Runs `gpt-broker` on port `5002`, injecting env from GitHub Secrets using `-e` flags.
   - If `REDIS_URL` secret is not set, it defaults to `redis://redis-stack:6379`.
 
 4) Access:
-- Broker: `http://<vm-host>:8011`
+- Broker: `http://<vm-host>:5002`
 - Redis Stack UI (if needed): `http://<vm-host>:8001` (exposed by CD Redis step)
 
 ## Testing

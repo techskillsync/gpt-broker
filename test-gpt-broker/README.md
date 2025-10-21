@@ -8,7 +8,7 @@ projects locally and on their production endpoints.
 
 Four .env's are required, all have the same keys but different values.
 
- 1. `.env.sksndev` Values for the local container of the SkillSyncDev project running on port 8011
+ 1. `.env.sksndev` Values for the local container of the SkillSyncDev project running on port 5002
  2. `.env.sksndev_prod` Values for the production endpoint of the SkillSyncDev gpt-broker
  3. `.env.techsksn` Values for the local container of the techskillsync project running on port 8023
  4. `.env.techsksn` Values for the production endpoint of the techskillsync gpt-broker

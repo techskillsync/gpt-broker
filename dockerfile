@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 8011
+EXPOSE 5002
 
 CMD ["node", "koa-api.js"]
