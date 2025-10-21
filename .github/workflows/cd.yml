@@ -10,41 +10,41 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Clean up disk space
+      - name: Cleanup (non-blocking)
         run: |
-          sudo docker system prune -af --volumes
-          sudo rm -rf /root/.cache
+          docker system prune -af --volumes || true
+          rm -rf "$HOME/.cache" || true
 
       - name: Login to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: echo "$DOCKER_PASSWORD" | sudo docker login -u "$DOCKER_USERNAME" --password-stdin
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
       - name: Pull Docker Image
-        run: sudo docker pull skillsyncrecruiter/gpt-broker:latest
+        run: docker pull skillsyncrecruiter/gpt-broker:latest
 
       - name: Create network if missing
         run: |
-          sudo docker network inspect gpt-broker-net >/dev/null 2>&1 || sudo docker network create gpt-broker-net
+          docker network inspect gpt-broker-net >/dev/null 2>&1 || docker network create gpt-broker-net
 
       - name: Ensure Redis is running
         run: |
-          if [ ! "$(sudo docker ps -q -f name=redis-stack)" ]; then
-            if [ "$(sudo docker ps -aq -f name=redis-stack)" ]; then
-              sudo docker rm -f redis-stack
+          if [ ! "$(docker ps -q -f name=redis-stack)" ]; then
+            if [ "$(docker ps -aq -f name=redis-stack)" ]; then
+              docker rm -f redis-stack
             fi
-            sudo docker run -d --name redis-stack --network gpt-broker-net \
+            docker run -d --name redis-stack --network gpt-broker-net \
               --restart unless-stopped -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
           fi
 
       - name: Stop and Remove Existing App Container
         run: |
-          if [ "$(sudo docker ps -q -f name=gpt-broker)" ]; then
-            sudo docker stop gpt-broker
-            sudo docker rm gpt-broker
-          elif [ "$(sudo docker ps -aq -f name=gpt-broker)" ]; then
-            sudo docker rm -f gpt-broker
+          if [ "$(docker ps -q -f name=gpt-broker)" ]; then
+            docker stop gpt-broker
+            docker rm gpt-broker
+          elif [ "$(docker ps -aq -f name=gpt-broker)" ]; then
+            docker rm -f gpt-broker
           fi
 
       - name: Run the Docker container
@@ -55,7 +55,7 @@ jobs:
           REDIS_URL: ${{ secrets.REDIS_URL }}
         run: |
           REDIS_URL_VALUE="${REDIS_URL:-redis://:@redis-stack:6379}"
-          sudo docker run -d --name gpt-broker --network gpt-broker-net \
+          docker run -d --name gpt-broker --network gpt-broker-net \
             --restart unless-stopped -p 8011:8011 \
             -e OPENAI_API_KEY -e SUPABASE_URL -e SUPABASE_SERVICE_KEY \
             -e REDIS_URL="$REDIS_URL_VALUE" \
