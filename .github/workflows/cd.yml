@@ -54,7 +54,7 @@ jobs:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           REDIS_URL: ${{ secrets.REDIS_URL }}
         run: |
-          REDIS_URL_VALUE="${REDIS_URL:-redis://:@redis-stack:6379}"
+          REDIS_URL_VALUE="${REDIS_URL:-redis://redis-stack:6379}"
           docker run -d --name gpt-broker --network gpt-broker-net \
             --restart unless-stopped -p 8011:8011 \
             -e OPENAI_API_KEY -e SUPABASE_URL -e SUPABASE_SERVICE_KEY \

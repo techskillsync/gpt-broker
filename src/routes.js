@@ -16,6 +16,12 @@ router.get('/health', async ctx => {
 	return;
 })
 
+router.get('/healthz', async ctx => {
+	const redisStatus = (ctx.redis && ctx.redis.isOpen) ? 'connected' : 'disconnected';
+	ctx.status = 200;
+	ctx.body = { status: 'ok', redis: redisStatus, uptime_sec: Math.floor(process.uptime()) };
+})
+
 
 router.get('/metrics', async ctx => {
 	ctx.type = 'text/plain';
