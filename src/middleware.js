@@ -46,10 +46,11 @@ async function checkRateLimit(ctx, next) {
 	if (!user) { throw Error("checkRateLimit could not get the user object. Make sure previous middleware added it to ctx.state.user before calling checkRateLimit") }
 
 	const key = `rate_limit:${user.id}`;
-	const expirationTime = 24 * 60 * 60; // 24 hrs
+	const windowSeconds = 60 * 60; // 1 hour
+	const limit = 100;
 	const replies = await ctx.redis.multi()
 		.incr(key)
-		.expire(key, expirationTime)
+		.expire(key, windowSeconds)
 		.get(key)
 		.exec((err, replies) => {
 			if (err) {
@@ -59,16 +60,12 @@ async function checkRateLimit(ctx, next) {
 			}
 		});
 	
-	const ID_WHITE_LIST = process.env.ID_WHITE_LIST;
-	const DAILY_LIMIT = process.env.DAILY_LIMIT;
+	const currentRequests = parseInt(replies[2]);
 
-	if (!ID_WHITE_LIST.includes(user.id)) {
-		const currentRequests = parseInt(replies[2])
-		if (currentRequests > DAILY_LIMIT) {
-			ctx.status = 429;
-			ctx.body = { error: 'GPT Rate limit exceeded.', message: null }
-			return;
-		}
+	if (currentRequests > limit) {
+		ctx.status = 429;
+		ctx.body = { error: 'GPT Rate limit exceeded. Try again later.', message: null }
+		return;
 	}
 
 	await next();

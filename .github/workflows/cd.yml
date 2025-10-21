@@ -1,0 +1,62 @@
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Clean up disk space
+        run: |
+          sudo docker system prune -af --volumes
+          sudo rm -rf /root/.cache
+
+      - name: Login to Docker Hub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: echo "$DOCKER_PASSWORD" | sudo docker login -u "$DOCKER_USERNAME" --password-stdin
+
+      - name: Pull Docker Image
+        run: sudo docker pull skillsyncrecruiter/gpt-broker:latest
+
+      - name: Create network if missing
+        run: |
+          sudo docker network inspect gpt-broker-net >/dev/null 2>&1 || sudo docker network create gpt-broker-net
+
+      - name: Ensure Redis is running
+        run: |
+          if [ ! "$(sudo docker ps -q -f name=redis-stack)" ]; then
+            if [ "$(sudo docker ps -aq -f name=redis-stack)" ]; then
+              sudo docker rm -f redis-stack
+            fi
+            sudo docker run -d --name redis-stack --network gpt-broker-net \
+              --restart unless-stopped -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+          fi
+
+      - name: Stop and Remove Existing App Container
+        run: |
+          if [ "$(sudo docker ps -q -f name=gpt-broker)" ]; then
+            sudo docker stop gpt-broker
+            sudo docker rm gpt-broker
+          elif [ "$(sudo docker ps -aq -f name=gpt-broker)" ]; then
+            sudo docker rm -f gpt-broker
+          fi
+
+      - name: Run the Docker container
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+        run: |
+          REDIS_URL_VALUE="${REDIS_URL:-redis://:@redis-stack:6379}"
+          sudo docker run -d --name gpt-broker --network gpt-broker-net \
+            --restart unless-stopped -p 8011:8011 \
+            -e OPENAI_API_KEY -e SUPABASE_URL -e SUPABASE_SERVICE_KEY \
+            -e REDIS_URL="$REDIS_URL_VALUE" \
+            skillsyncrecruiter/gpt-broker:latest
