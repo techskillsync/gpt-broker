@@ -41,32 +41,32 @@ async function validateUser(ctx, next) {
 
 async function checkRateLimit(ctx, next) {
 	
-	const user = ctx.state.user;
+	// const user = ctx.state.user;
 
-	if (!user) { throw Error("checkRateLimit could not get the user object. Make sure previous middleware added it to ctx.state.user before calling checkRateLimit") }
+	// if (!user) { throw Error("checkRateLimit could not get the user object. Make sure previous middleware added it to ctx.state.user before calling checkRateLimit") }
 
-	const key = `rate_limit:${user.id}`;
-	const windowSeconds = 60 * 60; // 1 hour
-	const limit = 100;
-	const replies = await ctx.redis.multi()
-		.incr(key)
-		.expire(key, windowSeconds)
-		.get(key)
-		.exec((err, replies) => {
-			if (err) {
-				console.error(' - ‼️ redis error: ' + err);
-			} else {
-				console.log(replies)
-			}
-		});
+	// const key = `rate_limit:${user.id}`;
+	// const windowSeconds = 60 * 60; // 1 hour
+	// const limit = 100;
+	// const replies = await ctx.redis.multi()
+	// 	.incr(key)
+	// 	.expire(key, windowSeconds)
+	// 	.get(key)
+	// 	.exec((err, replies) => {
+	// 		if (err) {
+	// 			console.error(' - ‼️ redis error: ' + err);
+	// 		} else {
+	// 			console.log(replies)
+	// 		}
+	// 	});
 	
-	const currentRequests = parseInt(replies[2]);
+	// const currentRequests = parseInt(replies[2]);
 
-	if (currentRequests > limit) {
-		ctx.status = 429;
-		ctx.body = { error: 'GPT Rate limit exceeded. Try again later.', message: null }
-		return;
-	}
+	// if (currentRequests > limit) {
+	// 	ctx.status = 429;
+	// 	ctx.body = { error: 'GPT Rate limit exceeded. Try again later.', message: null }
+	// 	return;
+	// }
 
 	await next();
 }
