@@ -72,5 +72,3 @@ This repo includes CI/CD workflows that build and deploy to a self-hosted runner
 ## Testing
 
 See `test-gpt-broker` for the end-to-end test suite targeting local and production endpoints.
-
-a
